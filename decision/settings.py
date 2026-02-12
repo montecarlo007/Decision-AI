@@ -15,7 +15,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-test-key')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['*']
-
+CSRF_TRUSTED_ORIGINS = ['https://decision-ai-78bo.onrender.com']
 # Application definition
 
 INSTALLED_APPS = [
