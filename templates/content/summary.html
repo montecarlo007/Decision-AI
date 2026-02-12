@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8 py-8">
+    <div class="flex items-center justify-between">
+        <h1 class="text-3xl font-bold text-gray-900">{{ doc.title }} - Summary</h1>
+        <a href="{% url 'dashboard' %}" class="text-indigo-600 hover:text-indigo-500 font-medium">Back to Dashboard</a>
+    </div>
+
+    {% if summary %}
+    <div class="bg-white shadow-sm rounded-2xl border border-gray-100 overflow-hidden">
+        <div class="p-8 space-y-8">
+            <!-- Summary Text -->
+            <section>
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Overview</h3>
+                <p class="text-gray-700 leading-relaxed">{{ summary.content.summary_text }}</p>
+            </section>
+
+            <!-- Main Themes -->
+            <section>
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Main Themes</h3>
+                <div class="flex flex-wrap gap-2">
+                    {% for theme in summary.content.main_themes %}
+                    <span
+                        class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-indigo-100">{{
+                        theme }}</span>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Key Concepts -->
+            <section>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Key Concepts</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for concept in summary.content.key_concepts %}
+                    <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                        <h4 class="font-bold text-indigo-600 mb-1">{{ concept.term }}</h4>
+                        <p class="text-sm text-gray-600">{{ concept.definition }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Core Arguments -->
+            {% if summary.content.core_arguments %}
+            <section>
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Core Arguments</h3>
+                <ul class="list-disc list-inside space-y-2 text-gray-700">
+                    {% for arg in summary.content.core_arguments %}
+                    <li>{{ arg }}</li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-white p-12 text-center rounded-2xl border border-dashed border-gray-300">
+        <p class="text-gray-500">Summary not generated yet or failed.</p>
+        <form action="{% url 'process_document' doc.id %}" method="post" class="mt-4">
+            {% csrf_token %}
+            <button type="submit" class="text-indigo-600 font-bold hover:underline">Click here to generate now</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

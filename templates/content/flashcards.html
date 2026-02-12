@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8 py-8">
+    <div class="flex items-center justify-between">
+        <h1 class="text-3xl font-bold text-gray-900">{{ doc.title }} - Flashcards</h1>
+        <a href="{% url 'dashboard' %}" class="text-indigo-600 hover:text-indigo-500 font-medium">Back to Dashboard</a>
+    </div>
+
+    {% if flashcards %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for card in flashcards %}
+        <div class="group h-64 [perspective:1000px]">
+            <div
+                class="relative h-full w-full rounded-2xl shadow-sm transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] cursor-pointer border border-gray-100">
+                <!-- Front -->
+                <div
+                    class="absolute inset-0 flex items-center justify-center p-6 bg-white rounded-2xl [backface-visibility:hidden]">
+                    <p class="text-center font-semibold text-gray-900">{{ card.front }}</p>
+                </div>
+                <!-- Back -->
+                <div
+                    class="absolute inset-0 h-full w-full rounded-2xl bg-indigo-600 p-6 text-white [transform:rotateY(180deg)] [backface-visibility:hidden] flex items-center justify-center">
+                    <p class="text-center text-sm">{{ card.back }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white p-12 text-center rounded-2xl border border-dashed border-gray-300">
+        <p class="text-gray-500">Flashcards not generated yet or failed.</p>
+        <form action="{% url 'process_document' doc.id %}" method="post" class="mt-4">
+            {% csrf_token %}
+            <button type="submit" class="text-indigo-600 font-bold hover:underline">Click here to generate now</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

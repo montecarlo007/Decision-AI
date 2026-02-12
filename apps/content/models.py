@@ -1,0 +1,34 @@
+from mongoengine import Document, StringField, ReferenceField, DateTimeField, FileField, DictField
+import datetime
+from apps.users.models import User
+
+class DocumentModel(Document):
+    user = ReferenceField(User, required=True)
+    title = StringField(required=True)
+    file_type = StringField(choices=('pdf', 'docx', 'txt', 'image'))
+    file = FileField()
+    extracted_text = StringField()
+    status = StringField(choices=('pending', 'processing', 'completed', 'failed'), default='pending')
+    uploaded_at = DateTimeField(default=datetime.datetime.utcnow)
+    metadata = DictField()
+    
+    meta = {'collection': 'documents'}
+
+    def __str__(self):
+        return self.title
+
+class SummaryModel(Document):
+    document = ReferenceField(DocumentModel, required=True)
+    content = DictField()  # Stores the JSON summary
+    created_at = DateTimeField(default=datetime.datetime.utcnow)
+    
+    meta = {'collection': 'summaries'}
+
+class Flashcard(Document):
+    document = ReferenceField(DocumentModel, required=True)
+    front = StringField(required=True)
+    back = StringField(required=True)
+    created_at = DateTimeField(default=datetime.datetime.utcnow)
+
+    meta = {'collection': 'flashcards'}
+

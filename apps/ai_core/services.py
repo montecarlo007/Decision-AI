@@ -1,0 +1,58 @@
+import requests
+import json
+import os
+from django.conf import settings
+from .prompts import SUMMARY_PROMPT, QUIZ_PROMPT, FLASHCARD_PROMPT
+
+class OllamaService:
+    def __init__(self):
+        self.base_url = os.environ.get('OLLAMA_BASE_URL', 'http://localhost:11434')
+        self.model = os.environ.get('OLLAMA_MODEL', 'llama3.2:1b')
+
+    def generate(self, prompt, temperature=0.7):
+        url = f"{self.base_url}/api/generate"
+        payload = {
+            "model": self.model,
+            "prompt": prompt,
+            "stream": False,
+            # "format": "json", # Force JSON mode if supported by model
+            "options": {
+                "temperature": temperature,
+                "num_ctx": 4096 
+            }
+        }
+        
+        try:
+            response = requests.post(url, json=payload, timeout=300) # Long timeout for CPU inference
+            response.raise_for_status()
+            data = response.json()
+            return data.get('response', '')
+        except requests.RequestException as e:
+            print(f"Ollama API Error: {e}")
+            raise
+
+    def generate_summary(self, text):
+        prompt = SUMMARY_PROMPT.format(text=text[:10000]) # Truncate for now to fit context
+        response = self.generate(prompt)
+        try:
+            return json.loads(response)
+        except json.JSONDecodeError:
+            # Fallback or retry logic could go here
+            return {"summary_text": response, "error": "Failed to parse JSON"}
+
+    def generate_quiz(self, text, difficulty="medium", num_questions=5):
+        text = text or ""
+        prompt = QUIZ_PROMPT.format(text=text[:10000], difficulty=difficulty, topics="general", num_questions=num_questions)
+        response = self.generate(prompt, temperature=0.8)
+        try:
+            return json.loads(response)
+        except json.JSONDecodeError:
+            return {"questions": [], "error": "Failed to parse JSON"}
+
+    def generate_flashcards(self, text):
+        prompt = FLASHCARD_PROMPT.format(text=text[:10000])
+        response = self.generate(prompt, temperature=0.8)
+        try:
+            return json.loads(response)
+        except json.JSONDecodeError:
+            return {"flashcards": [], "error": "Failed to parse JSON"}

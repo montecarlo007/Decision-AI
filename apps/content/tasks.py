@@ -1,0 +1,98 @@
+from celery import shared_task
+from .models import DocumentModel
+from .utils import process_file, clean_text
+import os
+from django.conf import settings
+from bson import ObjectId
+
+@shared_task
+def process_document_task(doc_id):
+    try:
+        doc = DocumentModel.objects.get(id=ObjectId(doc_id))
+        doc.status = 'processing'
+        doc.save()
+
+        # Get file from GridFS or local path? 
+        # For simplicity in local dev with FileField, we might need a way to access it.
+        # MongoEngine FileField stores in GridFS.
+        
+        file_content = doc.file.read()
+        
+        # We need to save it to a temp file to use standard libraries like pdfplumber/docx
+        temp_path = f"/tmp/{doc.id}_{doc.title}" # Assuming Linux container paths
+        # check os 
+        if os.name == 'nt': # Windows local dev
+             temp_path = f"tmp_{doc.id}_{doc.title}"
+
+        with open(temp_path, 'wb') as f:
+            f.write(file_content)
+
+        try:
+            raw_text = process_file(temp_path, doc.file_type)
+            doc.extracted_text = clean_text(raw_text)
+            
+            # Generate Summary
+            from apps.ai_core.services import OllamaService
+            from apps.content.models import SummaryModel
+            
+            ai_service = OllamaService()
+            summary_data = ai_service.generate_summary(doc.extracted_text)
+            
+            summary = SummaryModel(document=doc, content=summary_data)
+            summary.save()
+            
+            # Generate Quiz
+            from apps.assessments.models import Quiz, Question
+            
+            quiz_data = ai_service.generate_quiz(doc.extracted_text)
+            
+            if 'questions' in quiz_data:
+                quiz = Quiz(document=doc)
+                questions = []
+                for q_data in quiz_data['questions']:
+                    q = Question(
+                        type=q_data.get('type', 'multiple_choice'),
+                        question=q_data.get('question', ''),
+                        options=q_data.get('options', []),
+                        correct_answer=q_data.get('correct_answer', ''),
+                        explanation=q_data.get('explanation', ''),
+                        tags=q_data.get('tags', []),
+                        difficulty=q_data.get('difficulty', 'medium')
+                    )
+                    questions.append(q)
+                quiz.questions = questions
+                quiz.save()
+            
+            # Generate Flashcards
+            flashcard_data = ai_service.generate_flashcards(doc.extracted_text)
+            if 'flashcards' in flashcard_data:
+                from apps.content.models import Flashcard
+                for f_data in flashcard_data['flashcards']:
+                    flashcard = Flashcard(
+                        document=doc,
+                        front=f_data.get('front', ''),
+                        back=f_data.get('back', '')
+                    )
+                    flashcard.save()
+
+            doc.status = 'completed'
+        finally:
+            if os.path.exists(temp_path):
+                # Ensure file is closed before removing
+                try:
+                    os.remove(temp_path)
+                except Exception as e:
+                    print(f"Error removing temp file {temp_path}: {e}")
+
+        doc.save()
+        return f"Document {doc_id} processed successfully"
+
+    except Exception as e:
+        import traceback
+        error_msg = f"{str(e)}\n{traceback.format_exc()}"
+        print(f"Processing Task Error: {error_msg}")
+        if 'doc' in locals():
+            doc.status = 'failed'
+            doc.metadata['error'] = error_msg
+            doc.save()
+        return f"Error processing document {doc_id}: {str(e)}"

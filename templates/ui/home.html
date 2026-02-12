@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="relative overflow-hidden">
+    <!-- Hero Section -->
+    <div class="relative pt-16 pb-20 sm:pt-24 sm:pb-32">
+        <div class="relative">
+            <div class="text-center mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <span class="block text-sm font-semibold tracking-wide text-indigo-600 uppercase mb-2">
+                    AI-Powered Education
+                </span>
+                <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                    <span class="block">Master your learning with</span>
+                    <span
+                        class="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">Decision
+                        AI</span>
+                </h1>
+                <p class="mt-4 max-w-lg mx-auto text-xl text-gray-500 sm:mt-6">
+                    Upload documents, get instant intelligent summaries, and test your knowledge with adaptive quizzes
+                    tailored just for you.
+                </p>
+                <div class="mt-10 max-w-sm mx-auto sm:max-w-none sm:flex sm:justify-center">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}"
+                        class="flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        Go to Dashboard
+                    </a>
+                    {% else %}
+                    <a href="{% url 'register' %}"
+                        class="flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        Get Started
+                    </a>
+                    <a href="{% url 'login' %}"
+                        class="mt-3 sm:mt-0 sm:ml-3 flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-full text-indigo-700 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10 transition-all shadow-sm hover:shadow-md">
+                        Log in
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="py-16 bg-white rounded-3xl shadow-sm border border-gray-100 max-w-7xl mx-auto">
+        <div class="max-w-xl mx-auto px-4 sm:px-6 lg:max-w-7xl lg:px-8">
+            <h2 class="sr-only">A better way to learn</h2>
+            <dl class="space-y-10 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-8">
+                <!-- Feature 1 -->
+                <div class="relative group p-6 rounded-2xl hover:bg-gray-50 transition-colors">
+                    <div
+                        class="absolute flex items-center justify-center h-12 w-12 rounded-xl bg-indigo-500 text-white shadow-lg group-hover:scale-110 transition-transform">
+                        <!-- Heroicon: Document Text -->
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div class="ml-16">
+                        <dt class="text-lg leading-6 font-medium text-gray-900">Smart Analysis</dt>
+                        <dd class="mt-2 text-base text-gray-500">
+                            Upload any PDF or document. Our AI connects to your content and extracts key concepts
+                            instantly.
+                        </dd>
+                    </div>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="relative group p-6 rounded-2xl hover:bg-gray-50 transition-colors">
+                    <div
+                        class="absolute flex items-center justify-center h-12 w-12 rounded-xl bg-violet-500 text-white shadow-lg group-hover:scale-110 transition-transform">
+                        <!-- Heroicon: Lightbulb -->
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                    </div>
+                    <div class="ml-16">
+                        <dt class="text-lg leading-6 font-medium text-gray-900">Instant Quizzes</dt>
+                        <dd class="mt-2 text-base text-gray-500">
+                            Generate adaptive quizzes from your materials. Test your knowledge and get immediate
+                            feedback.
+                        </dd>
+                    </div>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="relative group p-6 rounded-2xl hover:bg-gray-50 transition-colors">
+                    <div
+                        class="absolute flex items-center justify-center h-12 w-12 rounded-xl bg-emerald-500 text-white shadow-lg group-hover:scale-110 transition-transform">
+                        <!-- Heroicon: Chart Bar -->
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <div class="ml-16">
+                        <dt class="text-lg leading-6 font-medium text-gray-900">Track Progress</dt>
+                        <dd class="mt-2 text-base text-gray-500">
+                            Visualize your learning journey with detailed analytics and performance tracking over time.
+                        </dd>
+                    </div>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}

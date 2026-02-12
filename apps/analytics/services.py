@@ -1,0 +1,97 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import io
+import base64
+from apps.assessments.models import Attempt
+from apps.users.models import User
+import matplotlib
+
+matplotlib.use('Agg') # Non-interactive backend
+
+def get_plot_image(plt):
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png', bbox_inches='tight')
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    buffer.close()
+    graphic = base64.b64encode(image_png)
+    return graphic.decode('utf-8')
+
+def generate_student_performance_chart(user_id):
+    attempts = Attempt.objects(user=user_id)
+    if not attempts:
+        return None
+
+    data = []
+    for attempt in attempts:
+        data.append({
+            'date': attempt.completed_at,
+            'score': attempt.score,
+            'quiz': attempt.quiz.document.title if attempt.quiz and attempt.quiz.document else "Unknown"
+        })
+    
+    df = pd.DataFrame(data)
+    if df.empty:
+        return None
+        
+    df['date'] = pd.to_datetime(df['date'])
+    df = df.sort_values('date')
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(df['date'], df['score'], marker='o', linestyle='-')
+    plt.title('Performance Over Time')
+    plt.xlabel('Date')
+    plt.ylabel('Score (%)')
+    plt.grid(True)
+    plt.tight_layout()
+    
+    chart = get_plot_image(plt)
+    plt.close()
+    return chart
+
+def generate_admin_stats():
+    from apps.content.models import DocumentModel
+    
+    users = User.objects.all().order_by('-date_joined')
+    total_users = users.count()
+    total_documents = DocumentModel.objects.count()
+    total_attempts = Attempt.objects.count()
+    avg_score = Attempt.objects.average('score') or 0
+    
+    stats = {
+        'total_users': total_users,
+        'total_documents': total_documents,
+        'total_attempts': total_attempts,
+        'avg_score': round(avg_score, 2),
+        'users': users
+    }
+    
+    # Generate Score Distribution
+    attempts = Attempt.objects.all()
+    if attempts:
+        scores = [a.score for a in attempts]
+        plt.figure(figsize=(8, 4))
+        plt.hist(scores, bins=10, color='#6366f1', edgecolor='white', rwidth=0.8)
+        plt.title('Score Distribution', pad=20)
+        plt.xlabel('Score (%)')
+        plt.ylabel('Frequency')
+        plt.tight_layout()
+        stats['score_dist_chart'] = get_plot_image(plt)
+        plt.close()
+
+    # Generate Document Type Distribution
+    docs = DocumentModel.objects.all()
+    if docs:
+        types = [d.file_type for d in docs]
+        type_counts = pd.Series(types).value_counts()
+        
+        plt.figure(figsize=(6, 6))
+        plt.pie(type_counts, labels=type_counts.index, autopct='%1.1f%%', 
+                colors=['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e'],
+                startangle=140, wedgeprops={'edgecolor': 'white'})
+        plt.title('Document Types', pad=20)
+        plt.tight_layout()
+        stats['doc_type_chart'] = get_plot_image(plt)
+        plt.close()
+    
+    return stats

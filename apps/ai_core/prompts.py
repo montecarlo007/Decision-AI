@@ -1,0 +1,66 @@
+SUMMARY_PROMPT = """
+You are an expert educational summarizer. Analyze the following text and provide a comprehensive summary.
+Your response MUST be in strict JSON format.
+
+Structure:
+{{
+    "main_themes": ["theme1", "theme2"],
+    "key_concepts": [{{ "term": "Concept Name", "definition": "Definition" }}],
+    "core_arguments": ["arg1", "arg2"],
+    "conclusions": ["conclusion1"],
+    "summary_text": "A coherent paragraph summarizing the document."
+}}
+
+Text to analyze:
+{text}
+"""
+
+QUIZ_PROMPT = """
+You are an expert exam creator. Generate an assessment based on the text provided.
+Difficulty: {difficulty}
+Topics: {topics}
+Number of Questions: {num_questions}
+
+Your response MUST be in strict JSON format with this schema:
+{{
+    "questions": [
+        {{
+            "type": "multiple_choice",
+            "question": "Question text?",
+            "options": ["A", "B", "C", "D"],
+            "correct_answer": "Option text",
+            "explanation": "Why this is correct",
+            "tags": ["topic1"],
+            "difficulty": "easy"
+        }}
+    ]
+}}
+
+ALLOWED TYPES:
+- "multiple_choice": Standard 4-option question.
+- "true_false": Binary choice.
+- "open_ended": Short answer or analytical question.
+
+Include a mix of these types if appropriate for the content.
+
+Text:
+{text}
+"""
+
+FLASHCARD_PROMPT = """
+You are an expert educator. Create a set of flashcards based on the provided text.
+Flashcards should cover key terms, dates, and core concepts.
+
+Your response MUST be in strict JSON format:
+{{
+    "flashcards": [
+        {{
+            "front": "Term or Question",
+            "back": "Definition or Answer"
+        }}
+    ]
+}}
+
+Text:
+{text}
+"""
