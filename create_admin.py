@@ -16,7 +16,7 @@ def create_admin():
     
     # Connect based on env
     mongo_uri = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/decision_db')
-    connect(host=mongo_uri)
+    connect(host=mongo_uri, tlsAllowInvalidCertificates=True)
     
     user = User.objects(email=email).first()
     if user:
