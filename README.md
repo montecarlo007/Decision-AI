@@ -1,53 +1,91 @@
-# Decision AI Platform
+# 🧠 Decision AI Platform
 
-A production-ready AI-powered educational platform using Django, MongoDB, Ollama, and Celery.
+[![Django](https://img.shields.io/badge/Django-5.0+-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Latest-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Ollama](https://img.shields.io/badge/Ollama-Local_AI-blue?style=for-the-badge)](https://ollama.ai/)
+[![Celery](https://img.shields.io/badge/Celery-Distributed_Tasks-37814A?style=for-the-badge&logo=celery&logoColor=white)](https://docs.celeryq.dev/)
 
-## Prerequisites
+**Decision AI** is a powerful, locally-hosted educational platform designed to transform your learning materials into intelligent summaries, flashcards, and interactive assessments. 
 
-- Docker Desktop installed
-- Git
+---
 
-## Setup & Running
+## ✨ Key Features
 
-1.  **Clone/Open the project** in your terminal.
-2.  **Ensure Ollama is running** (optional if using Docker only, but usually better to have model pulled locally):
-    ```bash
-    ollama pull qwen3:30b  #42
-    ```
-    *Note: The docker-compose includes an `ollama` service. If you have a local GPU, uncomment the GPU section in `docker-compose.yml`.*
+### 📄 Content Intelligence
+- **Universal File Support**: Upload PDF, DOCX, TXT, and Images.
+- **AI OCR**: Integrated text extraction from images and scanned documents.
+- **Smart Summarization**: Get high-level overviews and key concepts instantly.
+- **Flashcard Generation**: Auto-created flashcards for efficient active recall.
 
-3.  **Build and Start**:
-    ```bash
-    docker-compose up --build
-    ```
+### 📝 Interactive Assessments
+- **Customizable Quizzes**: Generate quizzes with specific **Difficulty Levels** (Easy, Medium, Hard).
+- **Question Volume Control**: Choose exactly how many questions you want to generate.
+- **Adaptive Question Types**: Mix of Multiple Choice, True/False, and Open Ended (Advanced Matching/Sequencing coming soon!).
+- **Instant Feedback**: Detailed results with scores and explanations for every answer.
 
-4.  **Access the Application**:
-    - Web Interface: http://localhost:8000
-    - Admin Dashboard: http://localhost:8000/admin-dashboard/ (Must register and manually set role to 'admin' in Mongo for now, or use a script)
+### 📊 Deep Analytics
+- **Performance Tracking**: Visual charts showing your progress over time.
+- **Global Stats**: Admin dashboard for monitoring system-wide usage.
 
-## Creating an Admin User
+---
 
-Since there is no default superuser command for this custom mongo setup, you can create a user via the registration page, then access the mongo shell to promote them:
+## 🛠️ Tech Stack
 
-1.  Register at `/auth/register/`.
-2.  Run:
-    ```bash
-    docker-compose exec db mongosh decision_db
-    > db.users.updateMany({email: "your@email.com"}, {$set: {role: "admin"}})
-    ```
+- **Backend**: Django 5.0 (Python)
+- **Database**: MongoDB (via MongoEngine)
+- **AI Engine**: Ollama (Running local models like Llama 3.2:1b)
+- **Task Queue**: Celery + Redis
+- **Frontend**: TailwindCSS + Vanilla JS
+- **Visuals**: Matplotlib & Pandas for analytics
 
-## Features
+---
 
--   **File Upload**: Supports PDF, DOCX, TXT, Images (OCR).
--   **AI Processing**: Summarization and Adaptive Quiz generation using local Ollama.
--   **Analytics**: Student performance tracking and Admin global stats using Pandas & Matplotlib.
--   **Architecture**:
-    -   Django 5 (Web Framework)
-    -   MongoDB (NoSQL Database)
-    -   Celery + Redis (Async Tasks)
-    -   TailwindCSS (Frontend)
+## 🚀 Getting Started
 
-## Troubleshooting
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Python 3.9+](https://www.python.org/downloads/) (for local development)
 
--   **Ollama Connection**: Ensure `OLLAMA_BASE_URL` in `.env` matches your setup. If running Ollama on host, use `http://host.docker.internal:11434`.
--   **Celery**: Check logs `docker-compose logs worker` if documents stick in "Processing".
+### One-Click Setup (Docker)
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd Quiz_flash_card
+   ```
+
+2. **Run the services**:
+   ```bash
+   docker-compose up --build
+   ```
+
+3. **Access the app**:
+   - 🌐 **Web Interface**: [http://localhost:8000](http://localhost:8000)
+   - 🛠️ **Admin Panel**: [http://localhost:8000/admin-dashboard/](http://localhost:8000/admin-dashboard/)
+
+---
+
+## 🔧 Maintenance & Utilities
+
+We include several helper scripts to manage your local environment:
+
+| Script | Purpose |
+| :--- | :--- |
+| `verify_connections.py` | Checks MongoDB, Redis, and Ollama connectivity. |
+| `create_admin.py` | Quickly creates an admin user for the dashboard. |
+| `check_ollama.py` | Verifies the AI engine and available models. |
+| `change_role.py` | Modifies user permissions (Admin/User). |
+
+---
+
+## 🛡️ Troubleshooting
+
+- **Processing Stalls**: If documents remain in "Processing", check the Celery worker logs:
+  ```bash
+  docker-compose logs worker
+  ```
+- **Connection Issues**: Ensure your `.env` file is correctly configured. If using host-only Ollama, set `OLLAMA_BASE_URL=http://host.docker.internal:11434`.
+
+---
+
+*Built with ❤️ for better learning.*
