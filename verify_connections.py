@@ -36,7 +36,7 @@ def check_mongodb(uri):
     print(f"Target: ...@{safe_uri}")
     
     try:
-        client = pymongo.MongoClient(uri, serverSelectionTimeoutMS=5000)
+        client = pymongo.MongoClient(uri, serverSelectionTimeoutMS=5000, tlsAllowInvalidCertificates=True)
         # The ismaster command is cheap and does not require auth.
         client.admin.command('ismaster')
         print("✅ MongoDB connection SUCCESS")
